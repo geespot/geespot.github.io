@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" >
+  <link rel="dns-prefetch" href="http://geespot.github.io">
+  <title>mysql_performance | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Mysql数据库的优化技术:对mysql优化是一个综合性的技术，主要包括:
+表的设计合理化(符合3NF)添加适当索引(index) [四种: 普通索引、主键索引、唯一索引unique、全文索引]分表技术(水平分割、垂直分割)读写[写: update/delete/add]分离存储过程 [模块化编程，可以提高速度]对mysql配置优化 [配置最大并发数my.ini, 调整缓存大小 ]mysql服务器">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mysql_performance">
+<meta property="og:url" content="http://geespot.github.io/2016/12/27/mysql-performance/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="Mysql数据库的优化技术:对mysql优化是一个综合性的技术，主要包括:
+表的设计合理化(符合3NF)添加适当索引(index) [四种: 普通索引、主键索引、唯一索引unique、全文索引]分表技术(水平分割、垂直分割)读写[写: update/delete/add]分离存储过程 [模块化编程，可以提高速度]对mysql配置优化 [配置最大并发数my.ini, 调整缓存大小 ]mysql服务器">
+<meta property="og:updated_time" content="2016-12-27T05:53:11.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="mysql_performance">
+<meta name="twitter:description" content="Mysql数据库的优化技术:对mysql优化是一个综合性的技术，主要包括:
+表的设计合理化(符合3NF)添加适当索引(index) [四种: 普通索引、主键索引、唯一索引unique、全文索引]分表技术(水平分割、垂直分割)读写[写: update/delete/add]分离存储过程 [模块化编程，可以提高速度]对mysql配置优化 [配置最大并发数my.ini, 调整缓存大小 ]mysql服务器">
+  
+    <link rel="alternative" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link rel="stylesheet" href="/main.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+      <div class="overlay"></div>
+<div class="intrude-less">
+	<header id="header" class="inner">
+		<a href="/" class="profilepic">
+			
+			<img src="/images/avatar.jpg" class="js-avatar">
+			
+		</a>
+
+		<hgroup>
+		  <h1 class="header-author"><a href="/">记事薄</a></h1>
+		</hgroup>
+
+		
+		<p class="header-subtitle">geespot的博客</p>
+		
+
+		<nav class="header-menu">
+			<ul>
+			
+				<li><a href="/">主页</a></li>
+	        
+				<li><a href="/tags/技术/">技术</a></li>
+	        
+				<li><a href="/tags/介绍/">介绍</a></li>
+	        
+				<li><a href="/tags/随笔/">随笔</a></li>
+	        
+				<li><a href="/tags/数据库/">数据库</a></li>
+	        
+			</ul>
+		</nav>
+		<nav class="header-smart-menu">
+	        
+    		
+    			
+    			<a class="js-smart-menu" data-idx="0" href="javascript:void(0)">所有文章</a>
+    			
+    			
+            
+    			
+    			<a class="js-smart-menu" data-idx="1" href="javascript:void(0)">标签</a>
+    			
+    			
+            
+    			
+    			<a class="js-smart-menu" data-idx="2" href="javascript:void(0)">友链</a>
+    			
+    			
+            
+    			
+    			<a class="js-smart-menu" data-idx="3" href="javascript:void(0)">关于我</a>
+    			
+    			
+            
+		</nav>
+		<nav class="header-nav">
+			<div class="social">
+				
+					<a class="github" target="_blank" href="https://github.com/geespot/geespot.github.io" title="github"><i class="icon-github"></i></a>
+		        
+					<a class="weibo" target="_blank" href="#" title="weibo"><i class="icon-weibo"></i></a>
+		        
+					<a class="rss" target="_blank" href="#" title="rss"><i class="icon-rss"></i></a>
+		        
+					<a class="zhihu" target="_blank" href="#" title="zhihu"><i class="icon-zhihu"></i></a>
+		        
+					<a class="mail" target="_blank" href="mailto:geespot@163.com" title="mail"><i class="icon-mail"></i></a>
+		        
+			</div>
+		</nav>
+	</header>		
+</div>
+
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+  	<div class="overlay">
+  		<div class="slider-trigger"><i class="icon-sort"></i></div>
+  		<h1 class="header-author js-mobile-header hide">记事薄</h1>
+  	</div>
+	<div class="intrude-less">
+		<header id="header" class="inner">
+			<div class="profilepic">
+				
+					<img src="/images/avatar.jpg" class="js-avatar">
+				
+			</div>
+			<hgroup>
+			  <h1 class="header-author">记事薄</h1>
+			</hgroup>
+			
+			<p class="header-subtitle">geespot的博客</p>
+			
+			<nav class="header-menu">
+				<ul>
+				
+					<li><a href="/">主页</a></li>
+		        
+					<li><a href="/tags/技术/">技术</a></li>
+		        
+					<li><a href="/tags/介绍/">介绍</a></li>
+		        
+					<li><a href="/tags/随笔/">随笔</a></li>
+		        
+					<li><a href="/tags/数据库/">数据库</a></li>
+		        
+				</ul>
+			</nav>
+			<nav class="header-nav">
+				<div class="social">
+					
+						<a class="github" target="_blank" href="https://github.com/geespot/geespot.github.io" title="github"><i class="icon-github"></i></a>
+			        
+						<a class="weibo" target="_blank" href="#" title="weibo"><i class="icon-weibo"></i></a>
+			        
+						<a class="rss" target="_blank" href="#" title="rss"><i class="icon-rss"></i></a>
+			        
+						<a class="zhihu" target="_blank" href="#" title="zhihu"><i class="icon-zhihu"></i></a>
+			        
+						<a class="mail" target="_blank" href="mailto:geespot@163.com" title="mail"><i class="icon-mail"></i></a>
+			        
+				</div>
+			</nav>
+		</header>				
+	</div>
+</nav>
+
+      <div class="body-wrap">
+        <article id="post-mysql-performance" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      mysql_performance
+    </h1>
+  
+
+        <a href="/2016/12/27/mysql-performance/" class="archive-article-date">
+  	<time datetime="2016-12-27T02:33:13.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-12-27</time>
+</a>
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="Mysql数据库的优化技术"><a href="#Mysql数据库的优化技术" class="headerlink" title="Mysql数据库的优化技术:"></a>Mysql数据库的优化技术:</h3><p>对mysql优化是一个综合性的技术，主要包括:</p>
+<p>表的设计合理化(符合3NF)<br>添加适当索引(index) [四种: 普通索引、主键索引、唯一索引unique、全文索引]<br>分表技术(水平分割、垂直分割)<br>读写[写: update/delete/add]分离<br>存储过程 [模块化编程，可以提高速度]<br>对mysql配置优化 [配置最大并发数my.ini, 调整缓存大小 ]<br>mysql服务器硬件升级<br>定时的去清除不需要的数据,定时进行碎片整理(MyISAM)</p>
+<h3 id="数据库优化工作"><a href="#数据库优化工作" class="headerlink" title="数据库优化工作:"></a>数据库优化工作:</h3><p>一般来说，要保证数据库的效率，要做好以下四个方面的工作：</p>
+<p>① 数据库设计<br>② sql语句优化<br>③ 数据库参数配置<br>④ 恰当的硬件资源和操作系统</p>
+<p>此外，使用适当的存储过程，也能提升性能。</p>
+<h3 id="数据库表设计"><a href="#数据库表设计" class="headerlink" title="数据库表设计:"></a>数据库表设计:</h3><p>通俗地理解三个范式，对于数据库设计大有好处。<br>在数据库设计中，为了更好地应用三个范式，就必须通俗地理解三个范式 通俗地理解是够用的理解，并不是最科学最准确的理解)：</p>
+<p>第一范式：1NF是对属性的原子性约束，要求属性(列)具有原子性，不可再分解；(只要是关系型数据库都满足1NF)<br>第二范式：2NF是对记录的惟一性约束，要求记录有惟一标识，即实体的惟一性；<br>第三范式：3NF是对字段冗余性的约束，它要求字段没有冗余。 没有冗余的数据库设计可以做到。</p>
+<p>但是，没有冗余的数据库未必是最好的数据库，有时为了提高运行效率，就必须降低范式标准，适当保留冗余数据。具体做法是： 在概念数据模型设计时遵守第三范式，降低范式标准的工作放到物理数据模型设计时考虑。降低范式就是增加字段，允许冗余。</p>
+<p>关系型数据库: mysql/oracle/db2/informix/sysbase/sql server<br>非关系型数据库: (特点: 面向对象或者集合)<br>NoSql数据库: MongoDB(特点是面向文档)<br>举例说明什么是适度冗余，或者说有理由的冗余!</p>
+<p>单位信息           ……………………     学生活动记录<br>单位标识 <pi> I  M ……………………       活动标识<br>单位名称 VA32          ……………………       活动时间<br>Identifier_1 <pi> ………………………       积分<br>            …………………………………………       单位名称 冗余<br>            …………………………………………       Identifier_1 <pi></pi></pi></pi></p>
+<p>面这个就是不合适的冗余，原因是:</p>
+<p>在这里，为了提高学生活动记录的检索效率，把单位名称冗余到学生活动记录表里。单位信息有500条记录，而学生活动记录在一年内大概有200万数据量。 如果学生活动记录表不冗余这个单位名称字段，只包含三个int字段和一个timestamp字段，只占用了16字节，是一个很小的表。而冗余了一个 varchar(32)的字段后则是原来的3倍，检索起来相应也多了这么多的I/O。而且记录数相差悬殊，500 VS 2000000 ，导致更新一个单位名称还要更新4000条冗余记录。由此可见，这个冗余根本就是适得其反.</p>
+<h3 id="SQL语句优化"><a href="#SQL语句优化" class="headerlink" title="SQL语句优化"></a>SQL语句优化</h3><p>通过show status命令了解各种SQL的执行频率。<br>定位执行效率较低的SQL语句-（重点select）<br>通过explain分析低效率的SQL<br>确定问题并采取相应的优化措施</p>
+<pre><code class="sql"><span class="comment">-- select语句分类</span>
+<span class="keyword">Select</span>
+Dml 数据操作语言(<span class="keyword">insert</span> <span class="keyword">update</span> <span class="keyword">delete</span>)
+dtl 数据事物语言(<span class="keyword">commit</span> <span class="keyword">rollback</span> <span class="keyword">savepoint</span>)
+<span class="keyword">Ddl</span> 数据定义语言(<span class="keyword">create</span> <span class="keyword">alter</span> drop..)
+Dcl(数据控制语言) <span class="keyword">grant</span> <span class="keyword">revoke</span>
+
+<span class="comment">-- Show status 常用命令</span>
+<span class="comment">--查询本次会话</span>
+<span class="keyword">Show</span> <span class="keyword">session</span> <span class="keyword">status</span> <span class="keyword">like</span> <span class="string">'com_%'</span>;     //<span class="keyword">show</span> <span class="keyword">session</span> <span class="keyword">status</span> <span class="keyword">like</span> <span class="string">'Com_select'</span>
+
+<span class="comment">--查询全局</span>
+<span class="keyword">Show</span> <span class="keyword">global</span> <span class="keyword">status</span> <span class="keyword">like</span> <span class="string">'com_%'</span>;
+
+<span class="comment">-- 给某个用户授权</span>
+<span class="keyword">grant</span> all <span class="keyword">privileges</span> <span class="keyword">on</span> *.* <span class="keyword">to</span> <span class="string">'abc'</span>@<span class="string">'%'</span>;
+<span class="comment">--为什么这样授权 'abc'表示用户名  '@' 表示host, 查看一下mysql-&gt;user表就知道了</span>
+
+<span class="comment">--回收权限</span>
+<span class="keyword">revoke</span> all <span class="keyword">on</span> *.* <span class="keyword">from</span> <span class="string">'abc'</span>@<span class="string">'%'</span>;
+
+<span class="comment">--刷新权限[也可以不写]</span>
+<span class="keyword">flush</span> <span class="keyword">privileges</span>;
+</code></pre>
+<h3 id="SQL语句优化-show参数"><a href="#SQL语句优化-show参数" class="headerlink" title="SQL语句优化-show参数"></a>SQL语句优化-show参数</h3><p>MySQL客户端连接成功后，通过使用show [session|global] status 命令可以提供服务器状态信息。其中的session来表示当前的连接的统计结果，global来表示自数据库上次启动至今的统计结果。默认是session级别的。<br>下面的例子：<br>show status like ‘Com_%’;<br>其中Com_XXX表示XXX语句所执行的次数。<br>重点注意：Com_select,Com_insert,Com_update,Com_delete通过这几个参数，可以容易地了解到当前数据库的应用是以插入更新为主还是以查询操作为主，以及各类的SQL大致的执行比例是多少。</p>
+<p>还有几个常用的参数便于用户了解数据库的基本情况。<br>Connections：试图连接MySQL服务器的次数<br>Uptime：服务器工作的时间（单位秒）<br>Slow_queries：慢查询的次数 (默认是慢查询时间10s)</p>
+<pre><code class="sql"><span class="keyword">show</span> <span class="keyword">status</span> <span class="keyword">like</span> <span class="string">'Connections'</span>
+<span class="keyword">show</span> <span class="keyword">status</span> <span class="keyword">like</span> <span class="string">'Uptime'</span>
+<span class="keyword">show</span> <span class="keyword">status</span> <span class="keyword">like</span> <span class="string">'Slow_queries'</span>
+</code></pre>
+<p>如何查询mysql的慢查询时间</p>
+<pre><code class="sql"><span class="keyword">Show</span> <span class="keyword">variables</span> <span class="keyword">like</span> <span class="string">'long_query_time'</span>;
+</code></pre>
+<p>修改mysql 慢查询时间</p>
+<pre><code class="sql"><span class="keyword">set</span> long_query_time=<span class="number">2</span>;
+</code></pre>
+<h3 id="SQL语句优化-定位慢查询"><a href="#SQL语句优化-定位慢查询" class="headerlink" title="SQL语句优化-定位慢查询"></a>SQL语句优化-定位慢查询</h3><p>问题是： 如何从一个大项目中，迅速的定位执行速度慢的语句. (定位慢查询)<br>首先我们了解mysql数据库的一些运行状态如何查询(比如想知道当前mysql运行的时间/一共执行了多少次select/update/delete.. / 当前连接)<br>为了便于测试，我们构建一个大表(400 万)-&gt; 使用存储过程构建<br>默认情况下，mysql认为10秒才是一个慢查询.<br>修改mysql的慢查询.</p>
+<pre><code class="sql"><span class="keyword">show</span> <span class="keyword">variables</span> <span class="keyword">like</span> <span class="string">'long_query_time'</span> ; //可以显示当前慢查询时间
+<span class="keyword">set</span> long_query_time=<span class="number">1</span> ;//可以修改慢查询时间
+</code></pre>
+<p>构建大表-&gt;大表中记录有要求, 记录是不同才有用，否则测试效果和真实的相差大.创建:</p>
+<pre><code class="sql"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> dept( <span class="comment">/*部门表*/</span>
+deptno MEDIUMINT   <span class="keyword">UNSIGNED</span>  <span class="keyword">NOT</span> <span class="literal">NULL</span>  <span class="keyword">DEFAULT</span> <span class="number">0</span>,  <span class="comment">/*编号*/</span>
+dname <span class="built_in">VARCHAR</span>(<span class="number">20</span>)  <span class="keyword">NOT</span> <span class="literal">NULL</span>  <span class="keyword">DEFAULT</span> <span class="string">""</span>, <span class="comment">/*名称*/</span>
+loc <span class="built_in">VARCHAR</span>(<span class="number">13</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">""</span> <span class="comment">/*地点*/</span>
+) <span class="keyword">ENGINE</span>=MyISAM <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8 ;
+
+
+<span class="keyword">CREATE</span> <span class="keyword">TABLE</span> emp
+(empno  MEDIUMINT <span class="keyword">UNSIGNED</span>  <span class="keyword">NOT</span> <span class="literal">NULL</span>  <span class="keyword">DEFAULT</span> <span class="number">0</span>, <span class="comment">/*编号*/</span>
+ename <span class="built_in">VARCHAR</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">""</span>, <span class="comment">/*名字*/</span>
+job <span class="built_in">VARCHAR</span>(<span class="number">9</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">""</span>,<span class="comment">/*工作*/</span>
+mgr MEDIUMINT <span class="keyword">UNSIGNED</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>,<span class="comment">/*上级编号*/</span>
+hiredate <span class="built_in">DATE</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,<span class="comment">/*入职时间*/</span>
+sal <span class="built_in">DECIMAL</span>(<span class="number">7</span>,<span class="number">2</span>)  <span class="keyword">NOT</span> <span class="literal">NULL</span>,<span class="comment">/*薪水*/</span>
+comm <span class="built_in">DECIMAL</span>(<span class="number">7</span>,<span class="number">2</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,<span class="comment">/*红利*/</span>
+deptno MEDIUMINT <span class="keyword">UNSIGNED</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="number">0</span> <span class="comment">/*部门编号*/</span>
+)<span class="keyword">ENGINE</span>=MyISAM <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8 ;
+
+
+<span class="keyword">CREATE</span> <span class="keyword">TABLE</span> salgrade
+(
+grade MEDIUMINT <span class="keyword">UNSIGNED</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>,
+losal <span class="built_in">DECIMAL</span>(<span class="number">17</span>,<span class="number">2</span>)  <span class="keyword">NOT</span> <span class="literal">NULL</span>,
+hisal <span class="built_in">DECIMAL</span>(<span class="number">17</span>,<span class="number">2</span>)  <span class="keyword">NOT</span> <span class="literal">NULL</span>
+)<span class="keyword">ENGINE</span>=MyISAM <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8;
+</code></pre>
+<p>测试数据</p>
+<pre><code class="sql">NSERT INTO salgrade VALUES (1,700,1200);
+<span class="keyword">INSERT</span> <span class="keyword">INTO</span> salgrade <span class="keyword">VALUES</span> (<span class="number">2</span>,<span class="number">1201</span>,<span class="number">1400</span>);
+<span class="keyword">INSERT</span> <span class="keyword">INTO</span> salgrade <span class="keyword">VALUES</span> (<span class="number">3</span>,<span class="number">1401</span>,<span class="number">2000</span>);
+<span class="keyword">INSERT</span> <span class="keyword">INTO</span> salgrade <span class="keyword">VALUES</span> (<span class="number">4</span>,<span class="number">2001</span>,<span class="number">3000</span>);
+<span class="keyword">INSERT</span> <span class="keyword">INTO</span> salgrade <span class="keyword">VALUES</span> (<span class="number">5</span>,<span class="number">3001</span>,<span class="number">9999</span>);
+</code></pre>
+<p>为了存储过程能够正常执行，我们需要把命令执行结束符修改delimiter<br>创建函数，该函数会返回一个指定长度的随机字符串</p>
+<pre><code class="sql">create function rand_string(n INT) 
+returns varchar(255) #该函数会返回一个字符串
+begin 
+#chars_str定义一个变量 chars_str,类型是 varchar(100),默认值'abcdefghijklmnopqrstuvwxyzABCDEFJHIJKLMNOPQRSTUVWXYZ';
+ declare chars_str varchar(100) default
+   'abcdefghijklmnopqrstuvwxyzABCDEFJHIJKLMNOPQRSTUVWXYZ';
+ declare return_str varchar(255) default '';
+ declare i int default 0;
+ while i &lt; n do 
+   set return_str =concat(return_str,substring(chars_str,floor(1+rand()*52),1));
+   set i = i + 1;
+   end while;
+  return return_str;
+  end
+</code></pre>
+<p>创建一个存储过程</p>
+<pre><code class="sql"><span class="keyword">create</span> <span class="keyword">procedure</span> insert_emp(<span class="keyword">in</span> <span class="keyword">start</span> <span class="built_in">int</span>(<span class="number">10</span>),<span class="keyword">in</span> max_num <span class="built_in">int</span>(<span class="number">10</span>))
+<span class="keyword">begin</span>
+<span class="keyword">declare</span> i <span class="built_in">int</span> <span class="keyword">default</span> <span class="number">0</span>; 
+ <span class="keyword">set</span> autocommit = <span class="number">0</span>;  
+ repeat
+ <span class="keyword">set</span> i = i + <span class="number">1</span>;
+ <span class="keyword">insert</span> <span class="keyword">into</span> emp <span class="keyword">values</span> ((<span class="keyword">start</span>+i) ,rand_string(<span class="number">6</span>),<span class="string">'SALESMAN'</span>,<span class="number">0001</span>,<span class="keyword">curdate</span>(),<span class="number">2000</span>,<span class="number">400</span>,<span class="keyword">rand</span>());
+  until i = max_num
+ <span class="keyword">end</span> <span class="keyword">repeat</span>;
+   <span class="keyword">commit</span>;
+ <span class="keyword">end</span>
+</code></pre>
+<p>#调用刚刚写好的函数, 1800000条记录,从100001号开始<br>call insert_emp(100001,4000000);<br>这时我们如果出现一条语句执行时间超过1秒中，就会统计到.<br>如果把慢查询的sql记录到我们的一个日志中<br>在默认情况下，低版本的mysql不会记录慢查询，需要在启动mysql时候，指定记录慢查询才可以<br>    bin\mysqld.exe - -safe-mode  - -slow-query-log [mysql5.5 可以在my.ini指定]<br>    bin\mysqld.exe –log-slow-queries=d:/abc.log [低版本mysql5.0可以在my.ini指定]<br>该慢查询日志会放在data目录下[在mysql5.0这个版本中时放在 mysql安装目录/data/下],在 mysql5.5.19下是需要查看<br>my.ini 的 datadir=”C:/Documents and Settings/All Users/Application Data/MySQL/MySQL Server 5.5/Data/“来确定.<br>在mysql5.6中，默认是启动记录慢查询的，my.ini的所在目录为：C:\ProgramData\MySQL\MySQL Server 5.6，其中有一个配置项<br>slow-query-log=1</p>
+<p>针对 mysql5.5启动慢查询有两种方法<br>bin\mysqld.exe - -safe-mode  - -slow-query-log<br>也可以在my.ini 文件中配置:</p>
+<pre><code class="bash">[mysqld]
+<span class="comment"># The TCP/IP Port the MySQL Server will listen on</span>
+port=3306
+slow-query-log
+</code></pre>
+<p>通过慢查询日志定位执行效率较低的SQL语句。慢查询日志记录了所有执行时间超过long_query_time所设置的SQL语句。<br>show variables like ‘long_query_time’;<br>set long_query_time=2;</p>
+<p>为dept表添加数据</p>
+<pre><code class="sql">desc dept;
+<span class="keyword">ALTER</span> <span class="keyword">table</span>  dept <span class="keyword">add</span> <span class="keyword">id</span> <span class="built_in">int</span> PRIMARY <span class="keyword">key</span> auto_increment;
+<span class="keyword">CREATE</span> PRIMARY <span class="keyword">KEY</span> <span class="keyword">on</span> dept(<span class="keyword">id</span>);
+<span class="keyword">create</span> <span class="keyword">INDEX</span> idx_dptno_dptname <span class="keyword">on</span> dept(deptno,dname);
+<span class="keyword">INSERT</span> <span class="keyword">into</span> dept(deptno,dname,loc) <span class="keyword">values</span>(<span class="number">1</span>,<span class="string">'研发部'</span>,<span class="string">'康和盛大厦5楼501'</span>);
+<span class="keyword">INSERT</span> <span class="keyword">into</span> dept(deptno,dname,loc) <span class="keyword">values</span>(<span class="number">2</span>,<span class="string">'产品部'</span>,<span class="string">'康和盛大厦5楼502'</span>);
+<span class="keyword">INSERT</span> <span class="keyword">into</span> dept(deptno,dname,loc) <span class="keyword">values</span>(<span class="number">3</span>,<span class="string">'财务部'</span>,<span class="string">'康和盛大厦5楼503'</span>);
+<span class="keyword">UPDATE</span> emp <span class="keyword">set</span> deptno=<span class="number">1</span> <span class="keyword">where</span> empno=<span class="number">100002</span>;
+</code></pre>
+<p>[对emp表的记录可以为3600000 ,效果很明显慢]</p>
+<p>select * from emp where empno=(select empno from emp where ename=’研发部’)</p>
+<p>如果带上order by e.empno 速度就会更慢，有时会到1min多.</p>
+<p>测试语句</p>
+<pre><code class="sql"><span class="keyword">select</span> * <span class="keyword">from</span> emp e,dept d <span class="keyword">where</span> e.empno=<span class="number">100002</span>  <span class="keyword">and</span> e.deptno=d.deptno;
+</code></pre>
+<p>查看慢查询日志：默认为数据目录data中的host-name-slow.log。低版本的mysql需要通过在开启mysql时使用- -log-slow-queries[=file_name]来配置</p>
+<h3 id="SQL语句优化-explain分析问题"><a href="#SQL语句优化-explain分析问题" class="headerlink" title="SQL语句优化-explain分析问题"></a>SQL语句优化-explain分析问题</h3><p>Explain select * from emp where ename=“wsrcla”<br>会产生如下信息：<br>select_type:表示查询的类型。<br>table:输出结果集的表<br>type:表示表的连接类型<br>possible_keys:表示查询时，可能使用的索引<br>key:表示实际使用的索引<br>key_len:索引字段的长度<br>rows:扫描出的行数(估算的行数)<br>Extra:执行情况的描述和说明</p>
+<pre><code class="sql"><span class="keyword">explain</span> <span class="keyword">select</span> * <span class="keyword">from</span> emp <span class="keyword">where</span> ename=<span class="string">'JKLOIP'</span>
+</code></pre>
+<p>如果要测试Extra的filesort可以对上面的语句修改</p>
+<pre><code class="sql"><span class="keyword">explain</span> <span class="keyword">select</span> * <span class="keyword">from</span> emp <span class="keyword">order</span> <span class="keyword">by</span> ename\G
+</code></pre>
+<p>XPLAIN详解<br>id<br>SELECT识别符。这是SELECT的查询序列号<br>id 示例</p>
+<pre><code class="sql"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> emp <span class="keyword">WHERE</span> empno = <span class="number">1</span> <span class="keyword">and</span> ename = (<span class="keyword">SELECT</span> ename <span class="keyword">FROM</span> emp <span class="keyword">WHERE</span> empno =  <span class="number">100001</span>) \G;
+</code></pre>
+<p>select_type<br>PRIMARY    :子查询中最外层查询<br>SUBQUERY : 子查询内层第一个SELECT，结果不依赖于外部查询<br>DEPENDENT SUBQUERY:子查询内层第一个SELECT，依赖于外部查询<br>UNION   :UNION语句中第二个SELECT开始后面所有SELECT，<br>SIMPLE<br>UNION RESULT UNION 中合并结果<br>Table<br>显示这一步所访问数据库中表名称<br>Type<br>对表访问方式<br>ALL：<br>SELECT <em> FROM emp \G<br>完整的表扫描 通常不好<br>SELECT </em> FROM (SELECT * FROM emp WHERE empno = 1) a ;<br>system：表仅有一行(=系统表)。这是const联接类型的一个特<br>const：表最多有一个匹配行<br>Possible_keys<br>该查询可以利用的索引，如果没有任何索引显示  null</p>
+<p>Key<br>Mysql 从 Possible_keys 所选择使用索引<br>Rows<br>估算出结果集行数<br>Extra<br>查询细节信息<br>No tables ：Query语句中使用FROM DUAL 或不含任何FROM子句<br>Using filesort ：当Query中包含 ORDER BY 操作，而且无法利用索引完成排序，<br>Impossible WHERE noticed after reading const tables: MYSQL Query Optimizer<br>通过收集统计信息不可能存在结果<br>Using temporary：某些操作必须使用临时表，常见 GROUP BY  ; ORDER BY<br>Using where：不用读取表中所有信息，仅通过索引就可以获取所需数据;</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags"></i>
+		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/技术/">技术</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/数据库/">数据库</a></li></ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+	<i class="icon-calendar"></i>
+	<a class="article-category-link" href="/categories/linux/">linux</a><a class="article-category-link" href="/categories/linux/数据库/">数据库</a><a class="article-category-link" href="/categories/linux/数据库/运维/">运维</a>
+	</div>
+
+
+      
+
+      
+        <div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode"></div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+  
+<nav id="article-nav">
+  
+    <a href="/2016/12/27/mysql-turning/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          mysql_turning
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/12/22/orange/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">orange</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+
+
+
+
+
+
+
+      </div>
+      <footer id="footer">
+  <div class="outer">
+    <div id="footer-info">
+    	<div class="footer-left">
+    		&copy; 2017 记事薄
+    	</div>
+      	<div class="footer-right">
+      		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
+      	</div>
+    </div>
+  </div>
+</footer>
+    </div>
+    <script>
+	var yiliaConfig = {
+		mathjax: false,
+		animate: true,
+		isHome: false,
+		isPost: true,
+		isArchive: false,
+		isTag: false,
+		isCategory: false,
+		open_in_new: false,
+		root: "/",
+		innerArchive: true
+	}
+</script>
+
+<script src="/./main.js"></script>
+
+
+    
+<div class="tools-col">
+  <ul class="btn-wrap">
+    
+      <li class="chose" data-hook="tools-section-all"><span class="text">全部</span><i class="icon-book"></i></li>
+    
+    
+      <li data-hook="tools-section-tag"><span class="text">标签</span><i class="icon-price-tags"></i></li>
+    
+    
+      <li data-hook="tools-section-friends"><span class="text">友链</span><i class="icon-link"></i></li>
+    
+    
+      <li data-hook="tools-section-me"><span class="text">我</span><i class="icon-smile"></i></li>
+    
+  </ul>
+  <div class="tools-wrap">
+    
+    	<section class="tools-section tools-section-all chose">
+    	</section>
+    
+
+    
+    	<section class="tools-section tools-section-tag">
+    			<div class="widget tagcloud" id="js-tagcloud">
+    				<a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/介绍/" style="font-size: 10px;">介绍</a> <a href="/tags/技术/" style="font-size: 20px;">技术</a> <a href="/tags/数据库/" style="font-size: 15px;">数据库</a> <a href="/tags/随笔/" style="font-size: 10px;">随笔</a>
+    			</div>
+    	</section>
+    
+
+    
+    	<section class="tools-section tools-section-friends">
+  		
+  			<div class="friends-wrap" id="js-friends">
+  			
+  	          <a target="_blank" class="main-nav-link switch-friends-link" href="http://clude.github.io/">奔跑的鱼</a>
+  	        
+  	          <a target="_blank" class="main-nav-link switch-friends-link" href="http://localhost:4000/">友情链接2</a>
+  	        
+  	          <a target="_blank" class="main-nav-link switch-friends-link" href="http://localhost:4000/">友情链接3</a>
+  	        
+  	          <a target="_blank" class="main-nav-link switch-friends-link" href="http://localhost:4000/">友情链接4</a>
+  	        
+  	          <a target="_blank" class="main-nav-link switch-friends-link" href="http://localhost:4000/">友情链接5</a>
+  	        
+  	          <a target="_blank" class="main-nav-link switch-friends-link" href="http://localhost:4000/">友情链接6</a>
+  	        
+  	        </div>
+  		
+    	</section>
+    
+
+    
+    	<section class="tools-section tools-section-me">
+  	  	
+  	  		<div class="aboutme-wrap" id="js-aboutme">很惭愧&lt;br&gt;&lt;br&gt;只做一点微末的工作&lt;br&gt;谢谢大家</div>
+  	  	
+    	</section>
+    
+  </div>
+  
+</div>
+    <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+  </div>
+</body>
+</html>
